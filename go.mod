@@ -1,4 +1,4 @@
-module data-conn
+module github.com/ssddffgg7455/data-conn
 
 go 1.20
 
