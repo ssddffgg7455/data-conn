@@ -1,0 +1,15 @@
+[mysql_config]
+log = true
+log_file= "sql"
+log_path = "./log"
+log_max_age = 30
+log_rotation_size = 10
+log_rotation_time = 24
+show_sql = true 
+max_idle_conns = 10
+max_open_conns = 100
+conn_max_lifetime = 600
+
+[mysql_cluster]
+default.master = "root:@tcp(127.0.0.1)/database"
+default.slave = "root:@tcp(127.0.0.1)/database"
