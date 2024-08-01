@@ -123,6 +123,7 @@ func _connectByConns(instanceName string, conns []string) error {
 		logger := log.NewSimpleLogger(logWriter)
 		logger.ShowSQL(cast.ToBool(configutil.GetConf("mysql_config", "show_sql")))
 		engine.SetLogger(logger)
+		engine.SetLogLevel(_getLoggerLevel())
 	} else if cast.ToBool(configutil.GetConf("mysql_config", "show_sql")) {
 		engine.ShowSQL(true)
 	}
@@ -171,10 +172,26 @@ func _monitorConnection(instanceName string) {
 
 func _getLoggerConfig() *logger.Config {
 	return &logger.Config{
-		LogFile:      cast.ToString(configutil.GetConf("mysql_config", "log_file")),         // 文件名 不带后缀（.log）
-		LogPath:      cast.ToString(configutil.GetConf("mysql_config", "log_path")),         // 日志路径
-		MaxAge:       cast.ToInt(configutil.GetConf("mysql_config", "log_max_age")),         // 最大保存时间 单位 day
-		RotationSize: cast.ToInt64(configutil.GetConf("mysql_config", "log_rotation_size")), // 日志文件滚动size 单位 M
-		RotationTime: cast.ToInt(configutil.GetConf("mysql_config", "log_rotation_time")),   // 日志滚动周期 单位 hour
+		Level:        cast.ToString(configutil.GetConf("mysql_log", "level")),        // 日志分级 DEBUG, INFO, WARN, ERROR, DPANIC, PANIC, FATAL
+		LogFile:      cast.ToString(configutil.GetConf("mysql_log", "log_file")),     // 文件名 不带后缀（.log）
+		LogPath:      cast.ToString(configutil.GetConf("mysql_log", "log_path")),     // 日志路径
+		MaxAge:       cast.ToInt(configutil.GetConf("mysql_log", "max_age")),         // 最大保存时间 单位 day
+		RotationSize: cast.ToInt64(configutil.GetConf("mysql_log", "rotation_size")), // 日志文件滚动size 单位 M
+		RotationTime: cast.ToInt(configutil.GetConf("mysql_log", "rotation_time")),   // 日志滚动周期 单位 hour
 	}
+}
+
+var levelMap = map[string]log.LogLevel{
+	"DEBUG": log.LOG_DEBUG,
+	"INFO":  log.LOG_INFO,
+	"WARN":  log.LOG_WARNING,
+	"ERROR": log.LOG_ERR,
+}
+
+func _getLoggerLevel() log.LogLevel {
+	level := cast.ToString(configutil.GetConf("mysql_log", "level"))
+	if logLevel, ok := levelMap[level]; ok {
+		return logLevel
+	}
+	return log.LOG_UNKNOWN
 }
